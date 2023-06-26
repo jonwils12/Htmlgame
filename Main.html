@@ -34,7 +34,8 @@
         var obstacles = [];
         var obstacleWidth = 50;
         var obstacleHeight = 150;
-        var obstacleGap = 200;
+        var minGap = 200;
+        var maxGap = 400;
         var obstacleSpeed = 5;
 
         // Game state
@@ -100,7 +101,7 @@
             }
 
             // Obstacle spawning
-            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - obstacleGap) {
+            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - getRandomGap()) {
                 spawnObstacle();
             }
         }
@@ -114,6 +115,11 @@
                 height: obstacleHeight
             };
             obstacles.push(obstacle);
+        }
+
+        // Get a random gap between obstacles
+        function getRandomGap() {
+            return Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
         }
 
         // Check collision between the player and an obstacle

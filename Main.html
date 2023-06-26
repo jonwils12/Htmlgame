@@ -106,4 +106,41 @@
             return rect1.x < rect2.x + rect2.width &&
                 rect1.x + rect1.width > rect2.x &&
                 rect1.y < rect2.y + rect2.height &&
-                rect1.y
+                rect1.y + rect1.height > rect2.y;
+        }
+
+        // Reset the game
+        function resetGame() {
+            score = 0;
+            player.x = 50;
+            player.y = canvas.height - 100;
+            obstacles = [];
+        }
+
+        // Draw the game elements
+        function draw() {
+            // Clear canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            context.fillStyle = "#ff0000";
+            context.fillRect(player.x, player.y, player.width, player.height);
+
+            // Draw obstacles
+            context.fillStyle = "#0000ff";
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacle = obstacles[i];
+                context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            }
+
+            // Draw score
+            context.fillStyle = "#000000";
+            context.font = "24px Arial";
+            context.fillText("Score: " + score, 10, 30);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>

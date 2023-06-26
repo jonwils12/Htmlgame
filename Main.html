@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Side-Scrolling Click to Jump Game with Obstacles</title>
+    <title>Side-Scrolling Click to Jump Game with Randomly Generated Background and Obstacles</title>
     <style>
         canvas {
             border: 1px solid black;
-            background-color: #d3d3d3;
         }
     </style>
 </head>
@@ -13,7 +12,7 @@
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <script>
-        // JavaScript code for the side-scrolling click-to-jump game with obstacles
+        // JavaScript code for the side-scrolling click-to-jump game with randomly generated background and obstacles
 
         // Get the canvas element
         var canvas = document.getElementById("gameCanvas");
@@ -31,12 +30,16 @@
             jumpCount: 0
         };
 
+        // Background variables
+        var backgroundSpeed = 2;
+        var backgroundX = 0;
+
         // Obstacles array
-        var obstacles = [
-            { x: 300, y: canvas.height - 50, width: 100, height: 50 },
-            { x: 600, y: canvas.height - 100, width: 100, height: 100 },
-            { x: 900, y: canvas.height - 150, width: 100, height: 150 }
-        ];
+        var obstacles = [];
+        var obstacleWidth = 100;
+        var minObstacleHeight = 50;
+        var maxObstacleHeight = 200;
+        var obstacleGap = 200;
 
         // Score
         var score = 0;
@@ -64,6 +67,9 @@
                 player.x += player.speed;
             }
 
+            // Background movement
+            backgroundX -= backgroundSpeed;
+
             // Check collision with obstacles
             for (var i = 0; i < obstacles.length; i++) {
                 var obstacle = obstacles[i];
@@ -85,17 +91,17 @@
             }
 
             // Remove off-screen obstacles
-            if (obstacles.length > 0 && obstacles[0].x + obstacles[0].width < 0) {
+            if (obstacles.length > 0 && obstacles[0].x + obstacleWidth < 0) {
                 obstacles.shift();
             }
 
             // Add new obstacles
-            if (obstacles.length === 0 || canvas.width - obstacles[obstacles.length - 1].x >= 300) {
+            if (obstacles.length === 0 || canvas.width - obstacles[obstacles.length - 1].x >= obstacleGap) {
                 var newObstacle = {
                     x: canvas.width,
-                    y: canvas.height - Math.floor(Math.random() * 150) - 50,
-                    width: 100,
-                    height: Math.floor(Math.random() * 100) + 50
+                    y: canvas.height - Math.floor(Math.random() * (maxObstacleHeight - minObstacleHeight + 1)) - minObstacleHeight,
+                    width: obstacleWidth,
+                    height: Math.floor(Math.random() * (maxObstacleHeight - minObstacleHeight + 1)) + minObstacleHeight
                 };
                 obstacles.push(newObstacle);
             }
@@ -122,6 +128,10 @@
             // Clear canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Draw background
+            context.fillStyle = "#d3d3d3";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
             // Draw player
             context.fillStyle = "#ff0000";
             context.fillRect(player.x, player.y, player.width, player.height);
@@ -137,6 +147,16 @@
             context.fillStyle = "#000000";
             context.font = "24px Arial";
             context.fillText("Score: " + score, 10, 30);
+
+            // Draw background lines
+            context.beginPath();
+            context.strokeStyle = "#808080";
+            context.lineWidth = 1;
+            for (var y = 0; y < canvas.height; y += 20) {
+                context.moveTo(0, y);
+                context.lineTo(canvas.width, y);
+            }
+            context.stroke();
         }
 
         // Start the game loop

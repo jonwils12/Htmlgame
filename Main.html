@@ -26,6 +26,7 @@
             speed: 5,
             gravity: 0.8,
             jumpForce: -12,
+            bounce: 0.5,
             isJumping: false
         };
 
@@ -46,7 +47,7 @@
             if (event.code === "Space" && !isGameOver) {
                 if (!player.isJumping) {
                     player.isJumping = true;
-                    player.y += player.jumpForce;
+                    player.speed = player.jumpForce;
                 }
             }
         });
@@ -70,7 +71,7 @@
 
             if (player.y >= canvas.height - player.radius) {
                 player.y = canvas.height - player.radius;
-                player.speed = 0;
+                player.speed *= -player.bounce;
                 player.isJumping = false;
             }
 

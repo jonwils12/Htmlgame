@@ -24,8 +24,8 @@
             y: canvas.height / 2,
             radius: 20,
             speed: 5,
-            gravity: 1,
-            jumpHeight: 30,
+            gravity: 0.8,
+            jumpForce: -12,
             isJumping: false
         };
 
@@ -46,7 +46,7 @@
             if (event.code === "Space" && !isGameOver) {
                 if (!player.isJumping) {
                     player.isJumping = true;
-                    player.y -= player.jumpHeight;
+                    player.y += player.jumpForce;
                 }
             }
         });
@@ -65,10 +65,12 @@
         // Update the game state
         function update() {
             // Player movement
-            player.y += player.gravity;
+            player.y += player.speed;
+            player.speed += player.gravity;
 
             if (player.y >= canvas.height - player.radius) {
                 player.y = canvas.height - player.radius;
+                player.speed = 0;
                 player.isJumping = false;
             }
 

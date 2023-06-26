@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Continuous Side-Scrolling Space Bar Jump Game</title>
+    <title>Side-Scrolling Click-to-Jump Game</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -12,7 +12,7 @@
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <script>
-        // JavaScript code for the continuous side-scrolling space bar jump game
+        // JavaScript code for the side-scrolling click-to-jump game
 
         // Get the canvas element
         var canvas = document.getElementById("gameCanvas");
@@ -29,29 +29,27 @@
             isJumping: false
         };
 
-        // Obstacle variables
-        var obstacles = [];
-        var obstacleWidth = 50;
-        var minObstacleHeight = 50;
-        var maxObstacleHeight = 200;
-        var obstacleGap = 200;
-        var obstacleSpawnDelay = 1500; // milliseconds
-        var lastObstacleSpawnTime = 0;
-
-        // Score
+        // Game state
+        var isGameOver = false;
         var score = 0;
         var highScore = 0;
 
-        // Keyboard event listener for jumping
+        // Event listener for the space bar keydown event
         document.addEventListener("keydown", function (event) {
-            if (event.code === "Space" && !player.isJumping) {
-                player.isJumping = true;
-                player.y -= player.jumpHeight;
+            if (event.code === "Space" && !isGameOver) {
+                if (!player.isJumping) {
+                    player.isJumping = true;
+                    player.y -= player.jumpHeight;
+                }
             }
         });
 
         // Game loop
         function gameLoop() {
+            if (isGameOver) {
+                return;
+            }
+
             update();
             draw();
             requestAnimationFrame(gameLoop);
@@ -67,29 +65,6 @@
                 player.isJumping = false;
             }
 
-            // Obstacle spawning
-            var currentTime = Date.now();
-            if (currentTime - lastObstacleSpawnTime > obstacleSpawnDelay) {
-                spawnObstacle();
-                lastObstacleSpawnTime = currentTime;
-            }
-
-            // Obstacle movement and collision detection
-            for (var i = 0; i < obstacles.length; i++) {
-                var obstacle = obstacles[i];
-                obstacle.x -= player.speed;
-
-                if (obstacle.x + obstacle.width < 0) {
-                    obstacles.splice(i, 1);
-                    i--;
-                }
-
-                if (checkCollision(player, obstacle)) {
-                    gameOver();
-                    return;
-                }
-            }
-
             // Score update
             score += player.speed / 10;
 
@@ -97,35 +72,6 @@
             if (score > highScore) {
                 highScore = score;
             }
-        }
-
-        // Spawn a new obstacle
-        function spawnObstacle() {
-            var obstacleHeight = Math.floor(Math.random() * (maxObstacleHeight - minObstacleHeight + 1)) + minObstacleHeight;
-            var obstacle = {
-                x: canvas.width,
-                y: canvas.height - obstacleHeight,
-                width: obstacleWidth,
-                height: obstacleHeight
-            };
-            obstacles.push(obstacle);
-        }
-
-        // Check collision between the player and an obstacle
-        function checkCollision(player, obstacle) {
-            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
-            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
-            return dx * dx + dy * dy < player.radius * player.radius;
-        }
-
-        // Game over
-        function gameOver() {
-            if (score > highScore) {
-                highScore = score;
-            }
-            score = 0;
-            player.y = canvas.height / 2;
-            obstacles = [];
         }
 
         // Draw the game elements
@@ -138,13 +84,6 @@
             context.beginPath();
             context.arc(player.x, player.y, player.radius, 0, Math.PI * 2, false);
             context.fill();
-
-            // Draw obstacles
-            context.fillStyle = "#0000ff";
-            for (var i = 0; i < obstacles.length; i++) {
-                var obstacle = obstacles[i];
-                context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            }
 
             // Draw score
             context.fillStyle = "#000000";

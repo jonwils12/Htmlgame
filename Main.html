@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Side-Scrolling Click to Jump Game with Randomly Generated Background and Obstacles</title>
+    <title>Continuous Side-Scrolling Click to Jump Game</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -12,7 +12,7 @@
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <script>
-        // JavaScript code for the side-scrolling click-to-jump game with randomly generated background and obstacles
+        // JavaScript code for the continuous side-scrolling click-to-jump game
 
         // Get the canvas element
         var canvas = document.getElementById("gameCanvas");
@@ -21,34 +21,31 @@
         // Player object
         var player = {
             x: 50,
-            y: canvas.height - 100,
-            width: 50,
-            height: 50,
+            y: canvas.height / 2,
+            radius: 20,
             speed: 5,
-            isJumping: false,
-            jumpHeight: 100,
-            jumpCount: 0
+            gravity: 1,
+            jumpHeight: 15,
+            isJumping: false
         };
 
-        // Background variables
-        var backgroundSpeed = 2;
-        var backgroundX = 0;
-
-        // Obstacles array
+        // Obstacle variables
         var obstacles = [];
-        var obstacleWidth = 100;
+        var obstacleWidth = 50;
         var minObstacleHeight = 50;
         var maxObstacleHeight = 200;
         var obstacleGap = 200;
+        var obstacleSpawnDelay = 1500; // milliseconds
+        var lastObstacleSpawnTime = 0;
 
         // Score
         var score = 0;
+        var highScore = 0;
 
         // Click event listener for jumping
         canvas.addEventListener("click", function (event) {
-            if (!player.isJumping && player.jumpCount < 2) {
+            if (!player.isJumping) {
                 player.isJumping = true;
-                player.jumpCount++;
                 player.y -= player.jumpHeight;
             }
         });
@@ -63,63 +60,71 @@
         // Update the game state
         function update() {
             // Player movement
-            if (!player.isJumping) {
-                player.x += player.speed;
+            player.y += player.gravity;
+
+            if (player.y >= canvas.height - player.radius) {
+                player.y = canvas.height - player.radius;
+                player.isJumping = false;
             }
 
-            // Background movement
-            backgroundX -= backgroundSpeed;
+            // Obstacle spawning
+            var currentTime = Date.now();
+            if (currentTime - lastObstacleSpawnTime > obstacleSpawnDelay) {
+                spawnObstacle();
+                lastObstacleSpawnTime = currentTime;
+            }
 
-            // Check collision with obstacles
+            // Obstacle movement and collision detection
             for (var i = 0; i < obstacles.length; i++) {
                 var obstacle = obstacles[i];
+                obstacle.x -= player.speed;
+
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+
                 if (checkCollision(player, obstacle)) {
-                    resetGame();
-                    break;
+                    gameOver();
+                    return;
                 }
             }
 
-            // Gravity
-            if (player.isJumping) {
-                player.y += 5;
-                if (player.y >= canvas.height - player.height) {
-                    player.y = canvas.height - player.height;
-                    player.isJumping = false;
-                    player.jumpCount = 0;
-                    score++;
-                }
-            }
+            // Score update
+            score += player.speed / 10;
 
-            // Remove off-screen obstacles
-            if (obstacles.length > 0 && obstacles[0].x + obstacleWidth < 0) {
-                obstacles.shift();
-            }
-
-            // Add new obstacles
-            if (obstacles.length === 0 || canvas.width - obstacles[obstacles.length - 1].x >= obstacleGap) {
-                var newObstacle = {
-                    x: canvas.width,
-                    y: canvas.height - Math.floor(Math.random() * (maxObstacleHeight - minObstacleHeight + 1)) - minObstacleHeight,
-                    width: obstacleWidth,
-                    height: Math.floor(Math.random() * (maxObstacleHeight - minObstacleHeight + 1)) + minObstacleHeight
-                };
-                obstacles.push(newObstacle);
+            // High score update
+            if (score > highScore) {
+                highScore = score;
             }
         }
 
-        // Check collision between two rectangles
-        function checkCollision(rect1, rect2) {
-            return rect1.x < rect2.x + rect2.width &&
-                rect1.x + rect1.width > rect2.x &&
-                rect1.y < rect2.y + rect2.height &&
-                rect1.y + rect1.height > rect2.y;
+        // Spawn a new obstacle
+        function spawnObstacle() {
+            var obstacleHeight = Math.floor(Math.random() * (maxObstacleHeight - minObstacleHeight + 1)) + minObstacleHeight;
+            var obstacle = {
+                x: canvas.width,
+                y: canvas.height - obstacleHeight,
+                width: obstacleWidth,
+                height: obstacleHeight
+            };
+            obstacles.push(obstacle);
         }
 
-        // Reset the game
-        function resetGame() {
+        // Check collision between the player and an obstacle
+        function checkCollision(player, obstacle) {
+            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
+            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
+            return dx * dx + dy * dy < player.radius * player.radius;
+        }
+
+        // Game over
+        function gameOver() {
+            if (score > highScore) {
+                highScore = score;
+            }
             score = 0;
-            player.x = 50;
-            player.y = canvas.height - 100;
+            player.y = canvas.height / 2;
             obstacles = [];
         }
 
@@ -128,13 +133,11 @@
             // Clear canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw background
-            context.fillStyle = "#d3d3d3";
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
             // Draw player
             context.fillStyle = "#ff0000";
-            context.fillRect(player.x, player.y, player.width, player.height);
+            context.beginPath();
+            context.arc(player.x, player.y, player.radius, 0, Math.PI * 2, false);
+            context.fill();
 
             // Draw obstacles
             context.fillStyle = "#0000ff";
@@ -146,17 +149,10 @@
             // Draw score
             context.fillStyle = "#000000";
             context.font = "24px Arial";
-            context.fillText("Score: " + score, 10, 30);
+            context.fillText("Score: " + Math.floor(score), 10, 30);
 
-            // Draw background lines
-            context.beginPath();
-            context.strokeStyle = "#808080";
-            context.lineWidth = 1;
-            for (var y = 0; y < canvas.height; y += 20) {
-                context.moveTo(0, y);
-                context.lineTo(canvas.width, y);
-            }
-            context.stroke();
+            // Draw high score
+            context.fillText("High Score: " + Math.floor(highScore), 10, 60);
         }
 
         // Start the game loop

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Side-Scrolling Click to Jump Game</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            background-color: #d3d3d3;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+    <script>
+        // JavaScript code for the side-scrolling click-to-jump game
+
+        // Get the canvas element
+        var canvas = document.getElementById("gameCanvas");
+        var context = canvas.getContext("2d");
+
+        // Player object
+        var player = {
+            x: 50,
+            y: canvas.height - 100,
+            width: 50,
+            height: 50,
+            speed: 5,
+            isJumping: false,
+            jumpHeight: 100,
+            jumpCount: 0
+        };
+
+        // Click event listener for jumping
+        canvas.addEventListener("click", function (event) {
+            if (!player.isJumping && player.jumpCount < 2) {
+                player.isJumping = true;
+                player.jumpCount++;
+                player.y -= player.jumpHeight;
+            }
+        });
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Update the game state
+        function update() {
+            // Gravity
+            if (player.isJumping) {
+                player.y += 5;
+                if (player.y >= canvas.height - player.height) {
+                    player.y = canvas.height - player.height;
+                    player.isJumping = false;
+                }
+            }
+        }
+
+        // Draw the game elements
+        function draw() {
+            // Clear canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            context.fillStyle = "#ff0000";
+            context.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>

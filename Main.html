@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Continuous Side-Scrolling Click to Jump Game</title>
+    <title>Continuous Side-Scrolling Space Bar Jump Game</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -12,7 +12,7 @@
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <script>
-        // JavaScript code for the continuous side-scrolling click-to-jump game
+        // JavaScript code for the continuous side-scrolling space bar jump game
 
         // Get the canvas element
         var canvas = document.getElementById("gameCanvas");
@@ -42,9 +42,9 @@
         var score = 0;
         var highScore = 0;
 
-        // Click event listener for jumping
-        canvas.addEventListener("click", function (event) {
-            if (!player.isJumping) {
+        // Keyboard event listener for jumping
+        document.addEventListener("keydown", function (event) {
+            if (event.code === "Space" && !player.isJumping) {
                 player.isJumping = true;
                 player.y -= player.jumpHeight;
             }

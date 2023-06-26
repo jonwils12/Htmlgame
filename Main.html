@@ -100,3 +100,66 @@
             }
 
             // Obstacle spawning
+            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - obstacleGap) {
+                spawnObstacle();
+            }
+        }
+
+        // Spawn a new obstacle
+        function spawnObstacle() {
+            var obstacle = {
+                x: canvas.width,
+                y: canvas.height - obstacleHeight,
+                width: obstacleWidth,
+                height: obstacleHeight
+            };
+            obstacles.push(obstacle);
+        }
+
+        // Check collision between the player and an obstacle
+        function checkCollision(player, obstacle) {
+            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
+            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
+            return dx * dx + dy * dy < player.radius * player.radius;
+        }
+
+        // Game over
+        function gameOver() {
+            isGameOver = true;
+            if (score > highScore) {
+                highScore = score;
+            }
+        }
+
+        // Draw the game elements
+        function draw() {
+            // Clear canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            context.fillStyle = "#ff0000";
+            context.beginPath();
+            context.arc(player.x, player.y, player.radius, 0, Math.PI * 2, false);
+            context.fill();
+
+            // Draw obstacles
+            context.fillStyle = "#0000ff";
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacle = obstacles[i];
+                context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            }
+
+            // Draw score
+            context.fillStyle = "#000000";
+            context.font = "24px Arial";
+            context.fillText("Score: " + Math.floor(score), 10, 30);
+
+            // Draw high score
+            context.fillText("High Score: " + Math.floor(highScore), 10, 60);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+</body>
+</html>

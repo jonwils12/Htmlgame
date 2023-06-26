@@ -25,9 +25,16 @@
             radius: 20,
             speed: 5,
             gravity: 1,
-            jumpHeight: 15,
+            jumpHeight: 30,
             isJumping: false
         };
+
+        // Obstacles
+        var obstacles = [];
+        var obstacleWidth = 50;
+        var obstacleHeight = 150;
+        var obstacleGap = 200;
+        var obstacleSpeed = 5;
 
         // Game state
         var isGameOver = false;
@@ -65,10 +72,57 @@
                 player.isJumping = false;
             }
 
+            // Obstacle movement
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacle = obstacles[i];
+                obstacle.x -= obstacleSpeed;
+
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+
+                if (checkCollision(player, obstacle)) {
+                    gameOver();
+                    return;
+                }
+            }
+
             // Score update
             score += player.speed / 10;
 
             // High score update
+            if (score > highScore) {
+                highScore = score;
+            }
+
+            // Obstacle spawning
+            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - obstacleGap) {
+                spawnObstacle();
+            }
+        }
+
+        // Spawn a new obstacle
+        function spawnObstacle() {
+            var obstacle = {
+                x: canvas.width,
+                y: canvas.height - obstacleHeight,
+                width: obstacleWidth,
+                height: obstacleHeight
+            };
+            obstacles.push(obstacle);
+        }
+
+        // Check collision between the player and an obstacle
+        function checkCollision(player, obstacle) {
+            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
+            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
+            return dx * dx + dy * dy < player.radius * player.radius;
+        }
+
+        // Game over
+        function gameOver() {
+            isGameOver = true;
             if (score > highScore) {
                 highScore = score;
             }
@@ -84,6 +138,13 @@
             context.beginPath();
             context.arc(player.x, player.y, player.radius, 0, Math.PI * 2, false);
             context.fill();
+
+            // Draw obstacles
+            context.fillStyle = "#0000ff";
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacle = obstacles[i];
+                context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            }
 
             // Draw score
             context.fillStyle = "#000000";

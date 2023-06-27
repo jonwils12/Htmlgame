@@ -146,8 +146,8 @@
 
             // Draw obstacles
             context.fillStyle = "#ff0000";
-            for (var i = 0; i < obstacles.length; i++) {
-                context.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacles[i].height);
+            for (var e = 130; e <= obstacles.length - 10; e++; var i = 0; i < obstacles.length; i++) {
+                context.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacles[e].height);
             }
 
             // Draw score

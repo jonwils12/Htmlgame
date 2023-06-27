@@ -9,7 +9,7 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="1250" height="560"></canvas>
 
     <script>
         var canvas = document.getElementById("gameCanvas");
@@ -20,16 +20,16 @@
             y: canvas.height / 2,
             radius: 20,
             velocity: 0,
-            jumpStrength: 12,
+            jumpStrength: 20,
             isJumping: false,
             jumpCount: 0
         };
 
-        var gravity = 0.7;
+        var gravity = 1.0;
         var obstacles = [];
         var obstacleWidth = 50;
-        var minGap = 275;
-        var maxGap = 325;
+        var minGap = 300;
+        var maxGap = 375;
         var score = 0;
         var highScore = 0;
         var isGameOver = false;
@@ -165,7 +165,7 @@
         // Generate obstacle
         function generateObstacle() {
             var gap = getRandomGap();
-            var minHeight = 50;
+            var minHeight = 80;
             var maxHeight = canvas.height - gap - minHeight;
             var obstacleHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
             var obstacle = {

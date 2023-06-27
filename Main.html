@@ -38,22 +38,21 @@
         canvas.addEventListener("mousedown", handleJump);
         document.addEventListener("keydown", function(event) {
             if (event.keyCode === 32) {
+                handleJump();
                 event.preventDefault();
             }
         });
 
         // Handle jump when mouse is clicked or space bar is pressed
-        function handleJump(event) {
+        function handleJump() {
             if (!isGameOver) {
-                if (event.keyCode === 32 || event.type === "mousedown") { // Space bar key code or mouse click event
-                    if (!player.isJumping) {
-                        player.velocity = -player.jumpStrength;
-                        player.isJumping = true;
-                        player.jumpCount++;
-                    } else if (player.jumpCount < 2) {
-                        player.velocity = -player.jumpStrength;
-                        player.jumpCount++;
-                    }
+                if (!player.isJumping) {
+                    player.velocity = -player.jumpStrength;
+                    player.isJumping = true;
+                    player.jumpCount++;
+                } else if (player.jumpCount < 2) {
+                    player.velocity = -player.jumpStrength;
+                    player.jumpCount++;
                 }
             } else {
                 resetGame();
@@ -168,9 +167,9 @@
             var gap = getRandomGap();
             var obstacle = {
                 x: canvas.width,
-                y: canvas.height - gap,
+                y: 0,
                 width: obstacleWidth,
-                height: gap
+                height: canvas.height - gap
             };
             obstacles.push(obstacle);
         }

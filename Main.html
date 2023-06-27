@@ -9,7 +9,7 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="1920" height="1080"></canvas>
+    <canvas id="gameCanvas" width="920" height="422"></canvas>
 
     <script>
         var canvas = document.getElementById("gameCanvas");
@@ -25,7 +25,7 @@
             jumpCount: 0
         };
 
-        var gravity = 0.4;
+        var gravity = 0.7;
         var obstacles = [];
         var obstacleWidth = 50;
         var minGap = 275;
@@ -169,7 +169,7 @@
                 x: canvas.width,
                 y: canvas.height - gap,
                 width: obstacleWidth,
-                height: canvas.height,
+                height: 120,
             };
             obstacles.push(obstacle);
         }

@@ -9,7 +9,7 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="1920" height="1080"></canvas>
 
     <script>
         var canvas = document.getElementById("gameCanvas");
@@ -20,7 +20,7 @@
             y: canvas.height / 2,
             radius: 20,
             velocity: 0,
-            jumpStrength: 8,
+            jumpStrength: 11,
             isJumping: false,
             jumpCount: 0
         };
@@ -28,12 +28,12 @@
         var gravity = 0.4;
         var obstacles = [];
         var obstacleWidth = 50;
-        var minGap = 150;
-        var maxGap = 250;
+        var minGap = 275;
+        var maxGap = 375;
         var score = 0;
         var highScore = 0;
         var isGameOver = false;
-        var obstacleSpeed = 3;
+        var obstacleSpeed = 5;
 
         canvas.addEventListener("mousedown", handleJump);
         document.addEventListener("keydown", function(event) {
@@ -167,9 +167,9 @@
             var gap = getRandomGap();
             var obstacle = {
                 x: canvas.width,
-                y: 0,
+                y: canvas.height - gap,
                 width: obstacleWidth,
-                height: canvas.height - gap
+                height: canvas.height,
             };
             obstacles.push(obstacle);
         }

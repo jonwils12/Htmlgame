@@ -9,7 +9,7 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="920" height="422"></canvas>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <script>
         var canvas = document.getElementById("gameCanvas");
@@ -20,20 +20,20 @@
             y: canvas.height / 2,
             radius: 20,
             velocity: 0,
-            jumpStrength: 17,
+            jumpStrength: 8,
             isJumping: false,
             jumpCount: 0
         };
 
-        var gravity = 0.9;
+        var gravity = 0.4;
         var obstacles = [];
         var obstacleWidth = 50;
-        var minGap = 275;
-        var maxGap = 375;
+        var minGap = 150;
+        var maxGap = 250;
         var score = 0;
         var highScore = 0;
         var isGameOver = false;
-        var obstacleSpeed = 7;
+        var obstacleSpeed = 3;
 
         canvas.addEventListener("mousedown", handleJump);
         document.addEventListener("keydown", function(event) {
@@ -146,8 +146,8 @@
 
             // Draw obstacles
             context.fillStyle = "#ff0000";
-            for (var e = 120;  var i = 0; i < obstacles.length; i++) {
-                context.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacles[e].height);
+            for (var i = 0; i < obstacles.length; i++) {
+                context.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacles[i].height);
             }
 
             // Draw score
@@ -165,11 +165,14 @@
         // Generate obstacle
         function generateObstacle() {
             var gap = getRandomGap();
+            var minHeight = 50;
+            var maxHeight = canvas.height - gap - minHeight;
+            var obstacleHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
             var obstacle = {
                 x: canvas.width,
-                y: canvas.height - gap,
+                y: canvas.height - obstacleHeight,
                 width: obstacleWidth,
-                height: canvas.height,
+                height: obstacleHeight
             };
             obstacles.push(obstacle);
         }

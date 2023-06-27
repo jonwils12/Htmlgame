@@ -209,18 +209,29 @@
         }
 
         // Check collision between the player and an obstacle
-        function checkCollision(player, obstacle) {
-            var playerTop = player.y - player.radius;
-            var playerBottom = player.y + player.radius;
-            var playerRight = player.x + player.radius;
-            var obstacleTop = obstacle.y + obstacle.height;
+function checkCollision(player, obstacle) {
+  var playerTop = player.y - player.radius;
+  var playerBottom = player.y + player.radius;
+  var playerRight = player.x + player.radius;
+  var playerLeft = player.x - player.radius;
 
-            if (playerBottom >= obstacleTop && playerRight >= obstacle.x && player.x <= obstacle.x + obstacle.width) {
-                return true;
-            }
+  var obstacleTop = obstacle.y;
+  var obstacleBottom = obstacle.y + obstacle.height;
+  var obstacleRight = obstacle.x + obstacle.width;
+  var obstacleLeft = obstacle.x;
 
-            return false;
-        }
+  if (
+    playerBottom >= obstacleTop &&
+    playerTop <= obstacleBottom &&
+    playerRight >= obstacleLeft &&
+    playerLeft <= obstacleRight
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 
         // Game over
         function gameOver() {

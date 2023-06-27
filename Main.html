@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Side-Scrolling Click-to-Jump Game</title>
+    <title>Side-Scrolling Click to Jump Game</title>
     <style>
         canvas {
             border: 1px solid black;
@@ -12,115 +12,86 @@
     <canvas id="gameCanvas" width="800" height="400"></canvas>
 
     <script>
-        // JavaScript code for the side-scrolling click-to-jump game
-
-        // Get the canvas element
         var canvas = document.getElementById("gameCanvas");
         var context = canvas.getContext("2d");
 
-        // Player object
         var player = {
             x: 50,
             y: canvas.height / 2,
             radius: 20,
-            speed: 0,
-            gravity: 0.6,
-            jumpForce: -12,
-            doubleJumpForce: -10,
-            bounce: 0.5,
+            velocity: 0,
+            jumpStrength: 8,
             isJumping: false,
-            isDoubleJumping: false,
             jumpCount: 0
         };
 
-        // Obstacles
+        var gravity = 0.4;
         var obstacles = [];
         var obstacleWidth = 50;
-        var obstacleHeight = 150;
-        var minGap = 200;
-        var maxGap = 400;
-        var obstacleSpeed = 5;
-
-        // Game state
-        var isGameStarted = false;
-        var isGameOver = false;
+        var minGap = 150;
+        var maxGap = 250;
         var score = 0;
         var highScore = 0;
+        var isGameOver = false;
 
-        // Event listener for the space bar keydown event
-        document.addEventListener("keydown", function (event) {
-            if (event.code === "Space" && !isGameOver) {
+        canvas.addEventListener("mousedown", handleJump);
+
+        // Handle jump when mouse is clicked
+        function handleJump() {
+            if (!isGameOver) {
                 if (!player.isJumping) {
+                    player.velocity = -player.jumpStrength;
                     player.isJumping = true;
-                    player.speed = player.jumpForce;
                     player.jumpCount++;
-                } else if (player.jumpCount === 1 && !player.isDoubleJumping) {
-                    player.isDoubleJumping = true;
-                    player.speed = player.doubleJumpForce;
+                } else if (player.jumpCount < 2) {
+                    player.velocity = -player.jumpStrength;
                     player.jumpCount++;
                 }
-            }
-        });
-
-        // Event listener for the canvas click event to start the game
-        canvas.addEventListener("click", function (event) {
-            if (!isGameStarted) {
-                isGameStarted = true;
-                resetGame();
-            } else if (isGameOver) {
+            } else {
                 resetGame();
             }
-        });
+        }
 
         // Game loop
         function gameLoop() {
-            if (!isGameStarted) {
-                drawStartScreen();
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-
-            if (isGameOver) {
-                drawGameOverScreen();
-                return;
-            }
-
             update();
             draw();
-            requestAnimationFrame(gameLoop);
+
+            if (!isGameOver) {
+                requestAnimationFrame(gameLoop);
+            } else {
+                drawGameOverScreen();
+            }
         }
 
-        // Update the game state
+        // Update game logic
         function update() {
-            // Player movement
-            player.y += player.speed;
-            player.speed += player.gravity;
+            // Update player position
+            player.y += player.velocity;
+            player.velocity += gravity;
 
-            if (player.y >= canvas.height - player.radius) {
+            // Check if player hits the ground
+            if (player.y + player.radius >= canvas.height) {
                 player.y = canvas.height - player.radius;
-                player.speed *= -player.bounce;
+                player.velocity = 0;
                 player.isJumping = false;
-                player.isDoubleJumping = false;
                 player.jumpCount = 0;
             }
 
-            // Obstacle movement
+            // Update obstacle positions
             for (var i = 0; i < obstacles.length; i++) {
-                var obstacle = obstacles[i];
-                obstacle.x -= obstacleSpeed;
+                obstacles[i].x -= 5;
 
-                if (obstacle.x + obstacle.width < 0) {
-                    obstacles.splice(i, 1);
-                    i--;
-                }
-            }
-
-            // Check collision
-            for (var i = 0; i < obstacles.length; i++) {
-                var obstacle = obstacles[i];
-                if (checkCollision(player, obstacle)) {
+                // Check collision with player
+                if (checkCollision(player, obstacles[i])) {
                     gameOver();
                     return;
+                }
+
+                // Remove obstacles that have moved off the screen
+                if (obstacles[i].x + obstacleWidth < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
                 }
             }
 
@@ -150,50 +121,38 @@
 
             context.fillStyle = "#000000";
             context.font = "48px Arial";
-            context.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2);
-            context.font = "24px Arial";
-            context.fillText("Click to Retry", canvas.width / 2 - 70, canvas.height / 2 + 40);
+            context.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2 - 50);
+            context.fillText("Score: " + Math.floor(score), canvas.width / 2 - 80, canvas.height / 2);
+            context.fillText("Click to Retry", canvas.width / 2 - 120, canvas.height / 2 + 50);
         }
 
-        // Reset the game
-        function resetGame() {
-            isGameOver = false;
-            score = 0;
-            player.y = canvas.height / 2;
-            obstacles = [];
-            gameLoop();
-        }
-
-        // Draw the game elements
+        // Draw game objects
         function draw() {
-            // Clear canvas
+            // Clear the canvas
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw player
-            context.fillStyle = "#ff0000";
+            context.fillStyle = "#000000";
             context.beginPath();
-            context.arc(player.x, player.y, player.radius, 0, Math.PI * 2, false);
+            context.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
             context.fill();
 
             // Draw obstacles
-            context.fillStyle = "#0000ff";
+            context.fillStyle = "#ff0000";
             for (var i = 0; i < obstacles.length; i++) {
-                var obstacle = obstacles[i];
-                context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                context.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacles[i].height);
             }
 
             // Draw score
             context.fillStyle = "#000000";
             context.font = "24px Arial";
             context.fillText("Score: " + Math.floor(score), 10, 30);
-
-            // Draw high score
             context.fillText("High Score: " + Math.floor(highScore), 10, 60);
         }
 
-        // Generate random obstacle gap
+        // Generate a random gap between obstacles
         function getRandomGap() {
-            return Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+            return Math.floor(Math.random() * (maxGap - minGap + 1) + minGap);
         }
 
         // Generate obstacle
@@ -209,40 +168,62 @@
         }
 
         // Check collision between the player and an obstacle
-function checkCollision(player, obstacle) {
-  var playerTop = player.y - player.radius;
-  var playerBottom = player.y + player.radius;
-  var playerRight = player.x + player.radius;
-  var playerLeft = player.x - player.radius;
+        function checkCollision(player, obstacle) {
+            var playerTop = player.y - player.radius;
+            var playerBottom = player.y + player.radius;
+            var playerRight = player.x + player.radius;
+            var playerLeft = player.x - player.radius;
 
-  var obstacleTop = obstacle.y;
-  var obstacleBottom = obstacle.y + obstacle.height;
-  var obstacleRight = obstacle.x + obstacle.width;
-  var obstacleLeft = obstacle.x;
+            var obstacleTop = obstacle.y;
+            var obstacleBottom = obstacle.y + obstacle.height;
+            var obstacleRight = obstacle.x + obstacle.width;
+            var obstacleLeft = obstacle.x;
 
-  if (
-    playerBottom >= obstacleTop &&
-    playerTop <= obstacleBottom &&
-    playerRight >= obstacleLeft &&
-    playerLeft <= obstacleRight
-  ) {
-    return true;
-  }
+            if (
+                playerBottom >= obstacleTop &&
+                playerTop <= obstacleBottom &&
+                playerRight >= obstacleLeft &&
+                playerLeft <= obstacleRight
+            ) {
+                return true;
+            }
 
-  return false;
-}
+            return false;
+        }
 
-
-        // Game over
+        // Game over logic
         function gameOver() {
             isGameOver = true;
+
             if (score > highScore) {
                 highScore = score;
             }
         }
 
-        // Start the game loop
-        gameLoop();
+        // Reset the game state
+        function resetGame() {
+            score = 0;
+            obstacles = [];
+            isGameOver = false;
+            player.y = canvas.height / 2;
+            player.velocity = 0;
+            player.isJumping = false;
+            player.jumpCount = 0;
+        }
+
+        // Start the game
+        function startGame() {
+            resetGame();
+            gameLoop();
+        }
+
+        // Initialize the game
+        function init() {
+            drawStartScreen();
+            canvas.addEventListener("click", startGame);
+        }
+
+        init();
     </script>
 </body>
 </html>

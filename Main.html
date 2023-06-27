@@ -36,8 +36,9 @@
         // Obstacles
         var obstacles = [];
         var obstacleWidth = 50;
-        var obstacleHeight = 120;
-        var gap = 275;
+        var obstacleHeight = 150;
+        var minGap = 200;
+        var maxGap = 400;
         var obstacleSpeed = 5;
 
         // Game state
@@ -131,6 +132,10 @@
                 height: obstacleHeight
             };
             obstacles.push(obstacle);
+
+            // Randomize the gap between obstacles
+            var randomGap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+            obstacle.x += randomGap;
         }
 
         // Check collision between the player and an obstacle

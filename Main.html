@@ -26,16 +26,18 @@
             speed: 0,
             gravity: 0.6,
             jumpForce: -12,
+            doubleJumpForce: -10,
             bounce: 0.5,
-            isJumping: false
+            isJumping: false,
+            isDoubleJumping: false,
+            jumpCount: 0
         };
 
         // Obstacles
         var obstacles = [];
         var obstacleWidth = 50;
-        var obstacleHeight = 120;
-        var minGap = 275;
-        var maxGap = 400;
+        var obstacleHeight = 125;
+        var gap = 250;
         var obstacleSpeed = 5;
 
         // Game state
@@ -49,7 +51,19 @@
                 if (!player.isJumping) {
                     player.isJumping = true;
                     player.speed = player.jumpForce;
+                    player.jumpCount++;
+                } else if (player.jumpCount === 1 && !player.isDoubleJumping) {
+                    player.isDoubleJumping = true;
+                    player.speed = player.doubleJumpForce;
+                    player.jumpCount++;
                 }
+            }
+        });
+
+        // Event listener for the canvas click event
+        canvas.addEventListener("click", function (event) {
+            if (isGameOver) {
+                resetGame();
             }
         });
 
@@ -74,6 +88,8 @@
                 player.y = canvas.height - player.radius;
                 player.speed *= -player.bounce;
                 player.isJumping = false;
+                player.isDoubleJumping = false;
+                player.jumpCount = 0;
             }
 
             // Obstacle movement
@@ -101,7 +117,7 @@
             }
 
             // Obstacle spawning
-            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - getRandomGap()) {
+            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - gap) {
                 spawnObstacle();
             }
         }
@@ -117,11 +133,6 @@
             obstacles.push(obstacle);
         }
 
-        // Get a random gap between obstacles
-        function getRandomGap() {
-            return Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
-        }
-
         // Check collision between the player and an obstacle
         function checkCollision(player, obstacle) {
             var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
@@ -135,6 +146,15 @@
             if (score > highScore) {
                 highScore = score;
             }
+        }
+
+        // Reset the game
+        function resetGame() {
+            isGameOver = false;
+            score = 0;
+            player.y = canvas.height / 2;
+            obstacles = [];
+            gameLoop();
         }
 
         // Draw the game elements
@@ -162,10 +182,20 @@
 
             // Draw high score
             context.fillText("High Score: " + Math.floor(highScore), 10, 60);
+
+            // Draw game over text
+            if (isGameOver) {
+                context.fillStyle = "#ff0000";
+                context.font = "48px Arial";
+                context.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2);
+                context.font = "24px Arial";
+                context.fillText("Click to Retry", canvas.width / 2 - 70, canvas.height / 2 + 40);
+            }
         }
 
-        // Start the game loop
-        gameLoop();
-    </script>
+        //Starts the game
+        gameloop();
+
+</script>
 </body>
 </html>

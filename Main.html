@@ -42,6 +42,7 @@
         var obstacleSpeed = 5;
 
         // Game state
+        var isGameStarted = false;
         var isGameOver = false;
         var score = 0;
         var highScore = 0;
@@ -61,16 +62,26 @@
             }
         });
 
-        // Event listener for the canvas click event
+        // Event listener for the canvas click event to start the game
         canvas.addEventListener("click", function (event) {
-            if (isGameOver) {
+            if (!isGameStarted) {
+                isGameStarted = true;
+                resetGame();
+            } else if (isGameOver) {
                 resetGame();
             }
         });
 
         // Game loop
         function gameLoop() {
+            if (!isGameStarted) {
+                drawStartScreen();
+                requestAnimationFrame(gameLoop);
+                return;
+            }
+
             if (isGameOver) {
+                drawGameOverScreen();
                 return;
             }
 
@@ -102,55 +113,41 @@
                     obstacles.splice(i, 1);
                     i--;
                 }
+            }
 
+            // Check collision
+            for (var i = 0; i < obstacles.length; i++) {
+                var obstacle = obstacles[i];
                 if (checkCollision(player, obstacle)) {
                     gameOver();
                     return;
                 }
             }
 
-            // Score update
-            score += 1;
-
-            // High score update
-            if (score > highScore) {
-                highScore = score;
-            }
-
-            // Obstacle spawning
-            if (obstacles.length === 0 || obstacles[obstacles.length - 1].x < canvas.width - gap) {
-                spawnObstacle();
-            }
+            // Increment score
+            score += 0.1;
         }
 
-        // Spawn a new obstacle
-        function spawnObstacle() {
-            var obstacle = {
-                x: canvas.width,
-                y: canvas.height - obstacleHeight,
-                width: obstacleWidth,
-                height: obstacleHeight
-            };
-            obstacles.push(obstacle);
+        // Draw the start screen
+        function drawStartScreen() {
+            context.fillStyle = "#ffffff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Randomize the gap between obstacles
-            var randomGap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
-            obstacle.x += randomGap;
+            context.fillStyle = "#000000";
+            context.font = "48px Arial";
+            context.fillText("Click to Start", canvas.width / 2 - 120, canvas.height / 2);
         }
 
-        // Check collision between the player and an obstacle
-        function checkCollision(player, obstacle) {
-            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
-            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
-            return dx * dx + dy * dy < player.radius * player.radius;
-        }
+        // Draw the game over screen
+        function drawGameOverScreen() {
+            context.fillStyle = "#ffffff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Game over
-        function gameOver() {
-            isGameOver = true;
-            if (score > highScore) {
-                highScore = score;
-            }
+            context.fillStyle = "#000000";
+            context.font = "48px Arial";
+            context.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2);
+            context.font = "24px Arial";
+            context.fillText("Click to Retry", canvas.width / 2 - 70, canvas.height / 2 + 40);
         }
 
         // Reset the game
@@ -187,14 +184,32 @@
 
             // Draw high score
             context.fillText("High Score: " + Math.floor(highScore), 10, 60);
+        }
 
-            // Draw game over text
-            if (isGameOver) {
-                context.fillStyle = "#ff0000";
-                context.font = "48px Arial";
-                context.fillText("Game Over", canvas.width / 2 - 100, canvas.height / 2);
-                context.font = "24px Arial";
-                context.fillText("Click to Retry", canvas.width / 2 - 70, canvas.height / 2 + 40);
+        // Generate random obstacles
+        function generateObstacle() {
+            var gap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+            var obstacle = {
+                x: canvas.width,
+                y: 0,
+                width: obstacleWidth,
+                height: canvas.height - gap
+            };
+            obstacles.push(obstacle);
+        }
+
+        // Check collision between the player and an obstacle
+        function checkCollision(player, obstacle) {
+            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
+            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
+            return dx * dx + dy * dy < player.radius * player.radius;
+        }
+
+        // Game over
+        function gameOver() {
+            isGameOver = true;
+            if (score > highScore) {
+                highScore = score;
             }
         }
 

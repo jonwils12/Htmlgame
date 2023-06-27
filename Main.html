@@ -33,19 +33,27 @@
         var score = 0;
         var highScore = 0;
         var isGameOver = false;
+        var obstacleSpeed = 3;
 
         canvas.addEventListener("mousedown", handleJump);
+        document.addEventListener("keydown", function(event) {
+            if (event.keyCode === 32) {
+                event.preventDefault();
+            }
+        });
 
-        // Handle jump when mouse is clicked
-        function handleJump() {
+        // Handle jump when mouse is clicked or space bar is pressed
+        function handleJump(event) {
             if (!isGameOver) {
-                if (!player.isJumping) {
-                    player.velocity = -player.jumpStrength;
-                    player.isJumping = true;
-                    player.jumpCount++;
-                } else if (player.jumpCount < 2) {
-                    player.velocity = -player.jumpStrength;
-                    player.jumpCount++;
+                if (event.keyCode === 32 || event.type === "mousedown") { // Space bar key code or mouse click event
+                    if (!player.isJumping) {
+                        player.velocity = -player.jumpStrength;
+                        player.isJumping = true;
+                        player.jumpCount++;
+                    } else if (player.jumpCount < 2) {
+                        player.velocity = -player.jumpStrength;
+                        player.jumpCount++;
+                    }
                 }
             } else {
                 resetGame();
@@ -80,7 +88,7 @@
 
             // Update obstacle positions
             for (var i = 0; i < obstacles.length; i++) {
-                obstacles[i].x -= 5;
+                obstacles[i].x -= obstacleSpeed;
 
                 // Check collision with player
                 if (checkCollision(player, obstacles[i])) {
@@ -160,9 +168,9 @@
             var gap = getRandomGap();
             var obstacle = {
                 x: canvas.width,
-                y: 0,
+                y: canvas.height - gap,
                 width: obstacleWidth,
-                height: canvas.height - gap
+                height: gap
             };
             obstacles.push(obstacle);
         }

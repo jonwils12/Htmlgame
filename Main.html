@@ -126,6 +126,11 @@
 
             // Increment score
             score += 0.1;
+
+            // Generate new obstacles
+            if (obstacles.length === 0 || canvas.width - obstacles[obstacles.length - 1].x >= getRandomGap()) {
+                generateObstacle();
+            }
         }
 
         // Draw the start screen
@@ -186,9 +191,14 @@
             context.fillText("High Score: " + Math.floor(highScore), 10, 60);
         }
 
-        // Generate random obstacles
+        // Generate random obstacle gap
+        function getRandomGap() {
+            return Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+        }
+
+        // Generate obstacle
         function generateObstacle() {
-            var gap = Math.floor(Math.random() * (maxGap - minGap + 1)) + minGap;
+            var gap = getRandomGap();
             var obstacle = {
                 x: canvas.width,
                 y: 0,
@@ -200,9 +210,16 @@
 
         // Check collision between the player and an obstacle
         function checkCollision(player, obstacle) {
-            var dx = player.x - Math.max(obstacle.x, Math.min(player.x, obstacle.x + obstacle.width));
-            var dy = player.y - Math.max(obstacle.y, Math.min(player.y, obstacle.y + obstacle.height));
-            return dx * dx + dy * dy < player.radius * player.radius;
+            var playerTop = player.y - player.radius;
+            var playerBottom = player.y + player.radius;
+            var playerRight = player.x + player.radius;
+            var obstacleTop = obstacle.y + obstacle.height;
+
+            if (playerBottom >= obstacleTop && playerRight >= obstacle.x && player.x <= obstacle.x + obstacle.width) {
+                return true;
+            }
+
+            return false;
         }
 
         // Game over
